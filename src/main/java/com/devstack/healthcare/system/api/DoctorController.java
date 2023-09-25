@@ -11,23 +11,30 @@ public class DoctorController {
         return doctorDto.toString();
     }
 
-    @GetMapping
-    public String findDoctor(){
-        return "findDoctor";
+    @GetMapping("/{id}")
+    public String findDoctor(@PathVariable String id){
+        return id+"";
     }
 
-    @PutMapping
-    public String updateDoctor(){
-        return "updateDoctor";
+    @PutMapping(params = "id")
+    public String updateDoctor(
+            @RequestParam String id,
+            @RequestBody RequestDoctorDto doctorDto
+    ){
+        return doctorDto.toString();
     }
 
-    @DeleteMapping
-    public String deleteDoctor(){
-        return "deleteDoctor";
+    @DeleteMapping("/{id}")
+    public String deleteDoctor(@PathVariable String id){
+        return id+"";
     }
 
-    @GetMapping(path = "/list")
-    public String findAllDoctors(){
+    @GetMapping(path = "/list", params = {"searchText","page","size"})
+    public String findAllDoctors(
+            @RequestParam String searchText,
+            @RequestParam int page,
+            @RequestParam int size
+    ){
         return "findAllDoctors";
     }
 }
