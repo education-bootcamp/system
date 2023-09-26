@@ -9,11 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 public class DoctorServiceImpl implements DoctorService {
-
+    // crud, exception, mapping
     private final DoctorRepo doctorRepo;
 
     @Autowired
@@ -24,10 +25,10 @@ public class DoctorServiceImpl implements DoctorService {
     @Override
     public void createDoctor(RequestDoctorDto dto) {
 
-        UUID uuid= UUID.randomUUID();
-        long docId= uuid.getMostSignificantBits();
+        UUID uuid = UUID.randomUUID();
+        long docId = uuid.getMostSignificantBits();
 
-        Doctor doctor =new Doctor(
+        Doctor doctor = new Doctor(
                 docId, dto.getName(), dto.getAddress(),
                 dto.getContact(), dto.getSalary()
         );
@@ -37,12 +38,30 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public ResponseDoctorDto getDoctor(long id) {
-        return null;
+        Optional<Doctor> selectedDoctor = doctorRepo.findById(id);
+        if (selectedDoctor.isEmpty()){
+            throw new RuntimeException("Doctor Not Found");
+        }
+        Doctor doc = selectedDoctor.get();
+        return new ResponseDoctorDto(
+                doc.getId(),doc.getName(),
+                doc.getAddress(),doc.getContact(),doc.getSalary()
+        );
     }
 
     @Override
     public void deleteDoctor(long id) {
+        Optional<Doctor> selectedDoctor = doctorRepo.findById(id);
+        if (selectedDoctor.isEmpty()){
+            throw new RuntimeException("Doctor Not Found");
+        }
+        doctorRepo.deleteById(selectedDoctor.get().getId());
+    }
 
+    @Override
+    public List<ResponseDoctorDto> findDoctorsByName(String name) {
+        List<Doctor> allByName = doctorRepo.findAllByName(name);
+        return null;
     }
 
     @Override
