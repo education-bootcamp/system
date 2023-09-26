@@ -2,6 +2,7 @@ package com.devstack.healthcare.system.service;
 
 import com.devstack.healthcare.system.dto.request.RequestDoctorDto;
 import com.devstack.healthcare.system.dto.response.ResponseDoctorDto;
+import com.devstack.healthcare.system.dto.response.paginated.PaginatedDoctorResponseDto;
 
 import java.util.List;
 
@@ -11,5 +12,5 @@ public interface DoctorService {
     public void deleteDoctor(long id);
     public List<ResponseDoctorDto> findDoctorsByName(String name);
     public void updateDoctor(long id, RequestDoctorDto dto);
-    public List<ResponseDoctorDto> getAllDoctors(String searchText, int page, int size);
+    public PaginatedDoctorResponseDto getAllDoctors(String searchText, int page, int size);
 }
