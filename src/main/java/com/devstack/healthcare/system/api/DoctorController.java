@@ -35,16 +35,24 @@ public class DoctorController {
     }
 
     @PutMapping(params = "id")
-    public String updateDoctor(
-            @RequestParam String id,
+    public ResponseEntity<StandardResponse> updateDoctor(
+            @RequestParam long id,
             @RequestBody RequestDoctorDto doctorDto
     ){
-        return doctorDto.toString();
+        doctorService.updateDoctor(id,doctorDto);
+        return new ResponseEntity<>(
+                new StandardResponse(201,"update data!",doctorDto.getName()),
+                HttpStatus.CREATED
+        );
     }
 
     @DeleteMapping("/{id}")
-    public String deleteDoctor(@PathVariable String id){
-        return id+"";
+    public ResponseEntity<StandardResponse> deleteDoctor(@PathVariable long id){
+        doctorService.deleteDoctor(id);
+        return new ResponseEntity<>(
+                new StandardResponse(204,"deleted data!",id),
+                HttpStatus.NO_CONTENT
+        );
     }
 
     @GetMapping(path = "/list", params = {"searchText","page","size"})
