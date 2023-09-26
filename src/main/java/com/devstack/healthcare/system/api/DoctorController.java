@@ -27,8 +27,11 @@ public class DoctorController {
     }
 
     @GetMapping("/{id}")
-    public String findDoctor(@PathVariable String id){
-        return id+"";
+    public ResponseEntity<StandardResponse> findDoctor(@PathVariable long id){
+        return new ResponseEntity<>(
+                new StandardResponse(200,"doctor data!",doctorService.getDoctor(id)),
+                HttpStatus.OK
+        );
     }
 
     @PutMapping(params = "id")
