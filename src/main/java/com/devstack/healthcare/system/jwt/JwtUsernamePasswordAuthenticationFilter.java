@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,7 +30,6 @@ public class JwtUsernamePasswordAuthenticationFilter
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request,
                                                 HttpServletResponse response) throws AuthenticationException {
-
         try{
             UsernamePasswordAuthenticationRequest
                     usernamePasswordAuthenticationRequest =
@@ -37,11 +37,17 @@ public class JwtUsernamePasswordAuthenticationFilter
                             request.getInputStream(),
                     UsernamePasswordAuthenticationRequest.class);
 
-
+            Authentication authentication=
+                    new UsernamePasswordAuthenticationToken(
+                            usernamePasswordAuthenticationRequest.getUsername(),
+                            usernamePasswordAuthenticationRequest.getPassword()
+                    );
+            Authentication authenticate =
+                    authenticationManager.authenticate(authentication);
+            return authenticate;
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 }
