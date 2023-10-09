@@ -1,5 +1,6 @@
 package com.devstack.healthcare.system.service.impl;
 
+import com.devstack.healthcare.system.auth.ApplicationUser;
 import com.devstack.healthcare.system.entity.User;
 import com.devstack.healthcare.system.entity.UserRoleHasUser;
 import com.devstack.healthcare.system.repo.UserRepo;
@@ -14,6 +15,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.devstack.healthcare.system.security.ApplicationUserRole.ADMIN;
+import static com.devstack.healthcare.system.security.ApplicationUserRole.DOCTOR;
+
 @Service
 public class ApplicationUserServiceImpl implements UserDetailsService {
     private final UserRepo userRepo;
@@ -26,13 +30,32 @@ public class ApplicationUserServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User selectedUser = userRepo.findByUserName(username);
+        User selectedUser = userRepo.findByUsername(username);
         if (selectedUser==null){
             throw new UsernameNotFoundException(String.format("username %s not found",username));
         }
 
-        List<UserRoleHasUser> userRole = userRoleHasUserRepo.findByUserId(selectedUser.getId());
+        List<UserRoleHasUser> userRoles = userRoleHasUserRepo.findByUserId(selectedUser.getId());
         Set<SimpleGrantedAuthority> grantedAuthorities = new HashSet<>();
+
+        for (UserRoleHasUser userRole:userRoles){
+            if (userRole.getUserRole().getRoleName().equals("ADMIN")){
+                grantedAuthorities.addAll(ADMIN.getSimpleGrantedAuthorities());
+            }
+            if (userRole.getUserRole().getRoleName().equals("DOCTOR")){
+                grantedAuthorities.addAll(DOCTOR.getSimpleGrantedAuthorities());
+            }
+        }
+
+        return new ApplicationUser(
+                grantedAuthorities,
+                selectedUser.getPassword(),
+                selectedUser.getEmail(),
+                selectedUser.isAccountNonExpired(),
+                selectedUser.isAccountNonLocked(),
+                selectedUser.isCredentialsNonExpired(),
+                selectedUser.isEnabled()
+        );
 
     }
 }
