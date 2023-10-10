@@ -50,7 +50,7 @@ public class ApplicationUserServiceImpl implements UserDetailsService {
         return new ApplicationUser(
                 grantedAuthorities,
                 selectedUser.getPassword(),
-                selectedUser.getEmail(),
+                selectedUser.getUsername(),
                 selectedUser.isAccountNonExpired(),
                 selectedUser.isAccountNonLocked(),
                 selectedUser.isCredentialsNonExpired(),
