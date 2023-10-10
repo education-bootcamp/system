@@ -25,4 +25,7 @@ public class UserRoleHasUser {
     @MapsId("userRole")
     @JoinColumn(name = "role_id",nullable = false)
     private UserRole userRole;
+
+
+
 }
