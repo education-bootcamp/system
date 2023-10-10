@@ -21,6 +21,7 @@ public class UserRole {
     private long id;
     private String roleName;
     private String description;
+
     @OneToMany(mappedBy = "userRole")
     private Set<UserRoleHasUser> userRoleHasUsers;
 
