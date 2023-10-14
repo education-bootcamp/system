@@ -4,14 +4,20 @@ import com.devstack.healthcare.system.dto.request.RequestUserDto;
 import com.devstack.healthcare.system.entity.User;
 import com.devstack.healthcare.system.entity.UserRole;
 import com.devstack.healthcare.system.entity.UserRoleHasUser;
+import com.devstack.healthcare.system.exceptions.EntryNotFoundException;
+import com.devstack.healthcare.system.jwt.JwtConfig;
 import com.devstack.healthcare.system.repo.UserRepo;
 import com.devstack.healthcare.system.repo.UserRoleHasUserRepo;
 import com.devstack.healthcare.system.repo.UserRoleRepo;
 import com.devstack.healthcare.system.service.UserService;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.SecretKey;
 import javax.transaction.Transactional;
 
 @Service
@@ -22,13 +28,17 @@ public class UserServiceImpl implements UserService {
     private final UserRoleRepo userRoleRepo;
     private final UserRoleHasUserRepo userRoleHasUserRepo;
     private final PasswordEncoder passwordEncoder;
+    private final JwtConfig jwtConfig;
+
 
     @Autowired
-    public UserServiceImpl(UserRepo userRepo, UserRoleRepo userRoleRepo, UserRoleHasUserRepo userRoleHasUserRepo, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepo userRepo, UserRoleRepo userRoleRepo, UserRoleHasUserRepo userRoleHasUserRepo,
+                           PasswordEncoder passwordEncoder, JwtConfig jwtConfig) {
         this.userRepo = userRepo;
         this.userRoleRepo = userRoleRepo;
         this.userRoleHasUserRepo = userRoleHasUserRepo;
         this.passwordEncoder = passwordEncoder;
+        this.jwtConfig = jwtConfig;
     }
 
     @Override
@@ -59,5 +69,24 @@ public class UserServiceImpl implements UserService {
         UserRoleHasUser userData = new UserRoleHasUser(user,userRole);
         userRepo.save(user);
         userRoleHasUserRepo.save(userData);
+    }
+
+    @Override
+    public boolean verifyUser(String type, String token) {
+        String realToken =
+                token.replace(jwtConfig.getTokenPrefix(),"");
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(realToken);
+        String username = claimsJws.getBody().getSubject();
+        User selectedUser = userRepo.findByUsername(username);
+        if(null!=selectedUser){
+            throw new EntryNotFoundException("Username not found!");
+        }
+
+        for(UserRoleHasUser roleUser:selectedUser.getUserRoleHasUsers()){
+            if (roleUser.getUserRole().getRoleName().equals(type)){
+                return true;
+            }
+        }
+        return false;
     }
 }
