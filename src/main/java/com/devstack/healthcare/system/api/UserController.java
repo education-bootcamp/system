@@ -31,12 +31,12 @@ public class UserController {
     @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DOCTOR')")
     public ResponseEntity<StandardResponse> verifyUser(
            @RequestParam String type,
-           @RequestHeader("Authorization") String toke
+           @RequestHeader("Authorization") String token
     ){
 
         return new ResponseEntity<>(
                 new StandardResponse(200,"user state!",
-                        userService.verifyUser(type,toke)),
+                        userService.verifyUser(type,token)),
                 HttpStatus.OK
         );
     }

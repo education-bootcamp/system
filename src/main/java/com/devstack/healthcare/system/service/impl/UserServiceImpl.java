@@ -29,16 +29,18 @@ public class UserServiceImpl implements UserService {
     private final UserRoleHasUserRepo userRoleHasUserRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtConfig jwtConfig;
+    private final SecretKey secretKey;
 
 
     @Autowired
     public UserServiceImpl(UserRepo userRepo, UserRoleRepo userRoleRepo, UserRoleHasUserRepo userRoleHasUserRepo,
-                           PasswordEncoder passwordEncoder, JwtConfig jwtConfig) {
+                           PasswordEncoder passwordEncoder, JwtConfig jwtConfig, SecretKey secretKey) {
         this.userRepo = userRepo;
         this.userRoleRepo = userRoleRepo;
         this.userRoleHasUserRepo = userRoleHasUserRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtConfig = jwtConfig;
+        this.secretKey = secretKey;
     }
 
     @Override
@@ -73,12 +75,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean verifyUser(String type, String token) {
+
         String realToken =
                 token.replace(jwtConfig.getTokenPrefix(),"");
-        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(jwtConfig.getSecretKey()).parseClaimsJws(realToken);
+        System.out.println(type);
+        System.out.println(token);
+        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(realToken);
         String username = claimsJws.getBody().getSubject();
         User selectedUser = userRepo.findByUsername(username);
-        if(null!=selectedUser){
+        if(null==selectedUser){
             throw new EntryNotFoundException("Username not found!");
         }
 

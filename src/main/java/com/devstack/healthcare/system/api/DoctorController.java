@@ -5,6 +5,7 @@ import com.devstack.healthcare.system.service.DoctorService;
 import com.devstack.healthcare.system.util.StandardResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class DoctorController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     public ResponseEntity<StandardResponse> createDoctor(@RequestBody RequestDoctorDto doctorDto){
         doctorService.createDoctor(doctorDto);
         return new ResponseEntity<>(
@@ -56,6 +58,7 @@ public class DoctorController {
     }
 
     @GetMapping(path = "/list", params = {"searchText","page","size"})
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN','ROLE_DOCTOR')")
     public ResponseEntity<StandardResponse> findAllDoctors(
             @RequestParam String searchText,
             @RequestParam int page,
